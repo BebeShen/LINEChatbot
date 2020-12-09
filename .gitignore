@@ -1,1 +1,4 @@
 .env
+test.py
+secret_settings.py
+__pycache__
