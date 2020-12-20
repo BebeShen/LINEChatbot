@@ -53,10 +53,11 @@ def callback():
 # decorator 負責判斷 event 為 MessageEvent 實例，event.message 為 TextMessage 實例。所以此為處理 TextMessage 的 handler
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    print("hello world")
     # 決定要回傳什麼 Component 到 Channel
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=event.message.text))
+    # line_bot_api.reply_message(
+    #     event.reply_token,
+    #     TextSendMessage(text=event.message.text))
 
 
 if __name__ == "__main__":
