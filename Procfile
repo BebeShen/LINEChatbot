@@ -1,1 +1,1 @@
-web: guricon app.py
+web: python app.py
