@@ -24,7 +24,10 @@
 
     runtime.txt 檔案裡，只需要簡單的填入你想要指定的 python 版本，如果你不想指定 python 的版本，這個檔案可以忽略。
 
+* 備註
 
+先在本地端執行：`python app.py`
+沒有問題再推上去哈哈哈
 ## 參考資料
 
 * [官方文件](https://devcenter.heroku.com/articles/getting-started-with-python)
