@@ -57,14 +57,14 @@ def callback():
     except InvalidSignatureError:
         print("Invalid signature. Please check your channel access token/channel secret.")
         abort(400)
-    for event in events:
-        if not isinstance(event, MessageEvent):
-            continue
-        if not isinstance(event.message, TextMessage):
-            continue
-        if not isinstance(event.message.text, str):
-            continue
-        print("Hello world")
+    # for event in events:
+    #     if not isinstance(event, MessageEvent):
+    #         continue
+    #     if not isinstance(event.message, TextMessage):
+    #         continue
+    #     if not isinstance(event.message.text, str):
+    #         continue
+    #     print("Hello world")
         # print(f"\nFSM STATE: {machine.state}")
         # print(f"REQUEST BODY: \n{body}")
         # response = machine.advance(event)
@@ -83,6 +83,6 @@ def handle_message(event):
 
 
 if __name__ == "__main__":
-    # app.run()
-    port = os.environ.get("PORT", 8000)
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run()
+    # port = os.environ.get("PORT", 8000)
+    # app.run(host="0.0.0.0", port=port, debug=True)
