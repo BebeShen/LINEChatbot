@@ -1,13 +1,15 @@
 from flask import Flask, request, abort 
+from linebot import LineBotApi, WebhookParser
 # 代表著從flask這個module中引入Flask, request, abort
 # REF:https://github.com/twtrubiks/python-notes/tree/master/configparser_tutorial
-import configparser
-config = configparser.ConfigParser()
-config.read("config.ini")
+# import configparser
+# config = configparser.ConfigParser()
+# config.read("config.ini")
 
-# # import os
-# # from dotenv import load_dotenv
-# # load_dotenv()
+import os
+import sys
+from dotenv import load_dotenv
+load_dotenv()
 
 # from secret_settings import *
 
@@ -23,10 +25,19 @@ from linebot.models import (
 
 app = Flask(__name__)
 
+channel_secret = os.getenv("LINE_CHANNEL_SECRET", None)
+channel_access_token = os.getenv("LINE_CHANNEL_ACCESS_TOKEN", None)
+if channel_secret is None:
+    print("Specify LINE_CHANNEL_SECRET as environment variable.")
+    sys.exit(1)
+if channel_access_token is None:
+    print("Specify LINE_CHANNEL_ACCESS_TOKEN as environment variable.")
+    sys.exit(1)
 
-line_bot_api = LineBotApi(config['DEFAULT']['LINE_CHANNEL_ACCESS_TOKEN']) # 貼上你的line bot channel token
-handler = WebhookHandler(config['DEFAULT']['LINE_CHANNEL_SECRET'])
-
+line_bot_api = LineBotApi(channel_access_token)
+parser = WebhookParser(channel_secret)
+# line_bot_api = LineBotApi(config['DEFAULT']['LINE_CHANNEL_ACCESS_TOKEN']) # 貼上你的line bot channel token
+# handler = WebhookHandler(config['DEFAULT']['LINE_CHANNEL_SECRET'])
 @app.route("/", methods=['GET'])
 def hello_world():
 		# 有人觸發了 / 這個路徑的時候就會呼叫此function並且執行
@@ -60,4 +71,5 @@ def handle_message(event):
 
 
 if __name__ == "__main__":
-    app.run()
+    port = os.environ.get("PORT", 8000)
+    app.run(host="0.0.0.0", port=port, debug=True)
