@@ -45,7 +45,7 @@ def hello_world():
 @app.route("/callback", methods=['POST']) # 代表我們宣告了/callback這個路徑 只要有人訪問這個路徑系統就會進行處理
 def callback():
     # get X-Line-Signature header value
-    handler.handle(body, signature)
+    signature = request.headers['X-Line-Signature']
 
     # get request body as text
     body = request.get_data(as_text=True)
