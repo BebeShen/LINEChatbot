@@ -1,8 +1,15 @@
-from flask import Flask, request, abort # 代表著從flask這個module中引入Flask, request, abort
-# import os
-# from dotenv import load_dotenv
-# load_dotenv()
-from secret_settings import *
+from flask import Flask, request, abort 
+# 代表著從flask這個module中引入Flask, request, abort
+# REF:https://github.com/twtrubiks/python-notes/tree/master/configparser_tutorial
+import configparser
+config = configparser.ConfigParser()
+config.read("config.ini")
+
+# # import os
+# # from dotenv import load_dotenv
+# # load_dotenv()
+
+# from secret_settings import *
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -17,8 +24,8 @@ from linebot.models import (
 app = Flask(__name__)
 
 
-line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN) # 貼上你的line bot channel token
-handler = WebhookHandler(LINE_CHANNEL_SECRET)
+line_bot_api = LineBotApi(config['DEFAULT']['LINE_CHANNEL_ACCESS_TOKEN']) # 貼上你的line bot channel token
+handler = WebhookHandler(config['DEFAULT']['LINE_CHANNEL_SECRET'])
 
 # 此為 Webhook callback endpoint
 @app.route("/callback", methods=['POST']) # 代表我們宣告了/callback這個路徑 只要有人訪問這個路徑系統就會進行處理
