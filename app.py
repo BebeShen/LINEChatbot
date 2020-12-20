@@ -27,6 +27,11 @@ app = Flask(__name__)
 line_bot_api = LineBotApi(config['DEFAULT']['LINE_CHANNEL_ACCESS_TOKEN']) # 貼上你的line bot channel token
 handler = WebhookHandler(config['DEFAULT']['LINE_CHANNEL_SECRET'])
 
+@app.route("/", methods=['GET'])
+def hello_world():
+		# 有人觸發了 / 這個路徑的時候就會呼叫此function並且執行
+    return 'Hello World!'
+
 # 此為 Webhook callback endpoint
 @app.route("/callback", methods=['POST']) # 代表我們宣告了/callback這個路徑 只要有人訪問這個路徑系統就會進行處理
 def callback():
