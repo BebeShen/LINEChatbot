@@ -77,10 +77,11 @@ def callback():
 def handle_message(event):
     # 決定要回傳什麼 Component 到 Channel
     # ref:https://github.com/line/line-bot-sdk-python#linebotapi
+    print(event.source.user_id)
     line_bot_api.reply_message(
         event.reply_token,
-        # TextSendMessage(text=event.message.text)
-        TextSendMessage(text=event.source.userId)
+        TextSendMessage(text=event.message.text)
+        # TextSendMessage(text=event.source.user_id)
     )
 
 
