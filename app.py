@@ -57,13 +57,13 @@ def callback():
     except InvalidSignatureError:
         print("Invalid signature. Please check your channel access token/channel secret.")
         abort(400)
-    for event in events:
-        if not isinstance(event, MessageEvent):
-            continue
-        if not isinstance(event.message, TextMessage):
-            continue
-        if not isinstance(event.message.text, str):
-            continue
+    # for event in events:
+    #     if not isinstance(event, MessageEvent):
+    #         continue
+    #     if not isinstance(event.message, TextMessage):
+    #         continue
+    #     if not isinstance(event.message.text, str):
+    #         continue
         print("Hello world")
         # print(f"\nFSM STATE: {machine.state}")
         # print(f"REQUEST BODY: \n{body}")
@@ -79,7 +79,9 @@ def handle_message(event):
     # ref:https://github.com/line/line-bot-sdk-python#linebotapi
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=event.message.text))
+        # TextSendMessage(text=event.message.text)
+        TextSendMessage(text=event.source.userId)
+    )
 
 
 if __name__ == "__main__":

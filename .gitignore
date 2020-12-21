@@ -3,3 +3,5 @@ test.py
 secret_settings.py
 __pycache__
 config.ini
+url.py
+debug.log
