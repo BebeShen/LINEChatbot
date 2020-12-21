@@ -33,7 +33,7 @@ def get_page_index():
     # browser.get('https://app.pers.ncku.edu.tw/ncov/index.php?c=fp&bid=B102&rid=B10203020&floor=3F')
     try:
         # 若為第一次登入，則會在點擊確認後前往確認身體狀況
-        source = BeautifulSoup(browser.page_source)
+        source = BeautifulSoup(browser.page_source,features="lxml")
         check_body = source.find_all('div',id="last_footprint_log")
         first_login = True
         if "請於關閉後填寫" not in str(check_body):
@@ -58,6 +58,7 @@ def get_page_index():
                 (By.XPATH, '//*[@id="last_footprint_log"]/div[2]/div/div[2]/div/button'))
             )
             submit.click()
+        browser.close()
     except Exception as e:
         print(str(e))
 login()

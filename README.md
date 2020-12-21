@@ -28,6 +28,7 @@
 
 先在本地端執行：`python app.py`
 沒有問題再推上去哈哈哈
+
 ## 參考資料
 
 * [官方文件](https://devcenter.heroku.com/articles/getting-started-with-python)
