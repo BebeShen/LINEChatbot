@@ -10,7 +10,7 @@ import psycopg2
 import model 
 from dotenv import load_dotenv
 load_dotenv()
-
+import messageObeject
 # from secret_settings import *
 
 from linebot import (
@@ -20,7 +20,7 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage,
+    MessageEvent, TextMessage, TextSendMessage, FlexSendMessage
 )
 
 app = Flask(__name__)
@@ -77,19 +77,57 @@ def handle_message(event):
     # ref:https://github.com/line/line-bot-sdk-python#linebotapi
     print(event.source.user_id)
     user_line_id = event.source.user_id
-    # profile = line_bot_api.get_profile(user_line_id) # get profile by user's line_id(user_id)
+    profile = line_bot_api.get_profile(user_line_id) # get profile by user's line_id(user_id)
     user_info = model.find_user_by_line_id(user_line_id)
     if user_info == "Not found":
         model.create_user_info(user_line_id)
+        model.update_user_state_by_lineid("add student info",user_line_id)
+        # Event day's greeting
+        # line_bot_api.reply_message(
+        #     event.reply_token,
+        #     TextSendMessage(text=f"歡迎使用子揚幫你點名小幫手，\n這個機器人可以幫你防疫點名，\n省去掃QRCode的時間！")
+        # )
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text="請輸入成功入口學號/密碼以進行防疫點名登入")
+            TextSendMessage(text=f"嗨，{profile.display_name}！\n你好像是第一次使用我唷><\n為了完整使用子揚小幫手點名功能，\n請輸入你的成功入口 學號/密碼以進行防疫點名登入。\n子揚只會將你的資訊用來點名，請放心:)\n輸入格式範例：\n學號:F74072235\n密碼:password"
+            )
         )
     else:
-        if user_info['state'] == "initial":
+        if user_info['state'] == "update student info":
+            txt = event.message.text
+            try:
+                txt = txt.split("\n")
+                number = txt[0].split(":")[1]
+                psw = txt[1].split(":")[1]
+                info = dict(zip(['userId','student_number','student_password'],[user_line_id,number,psw]))
+                model.update_user_student_by_lineid(info)
+                model.update_user_state_by_lineid("initial",user_line_id)
+            except:
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text="請按照正確格式輸入~\n輸入格式範例：\n學號:F74072235\n密碼:password")
+                )
+        elif user_info['state'] == "initial":
             # ask next step
+            # 1. rollcall 2. modify
             pass
-        profile = line_bot_api.get_profile(user_line_id)
+        elif user_info['state'] == "rollcall":
+            # select classroom
+            # After rollcall go to initial state or go to update student info
+            # line_bot_api.push_message(
+            #         event.user_line_id,
+            #         TextSendMessage(text="請選擇要點名的教室\n目前有:\n資訊系館4263\n資訊系館65304\n資訊系館65405\n測量系館經緯廳")
+            #     )
+            line_bot_api.push_message(
+                event.user_line_id,
+                FlexSendMessage(
+                    alt_text="Test",
+                    contents=messageObeject.flex_msg
+                )
+            )
+            pass
+        
+        # profile = line_bot_api.get_profile(user_line_id)
 
     
 

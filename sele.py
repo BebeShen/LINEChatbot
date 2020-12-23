@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.common.exceptions import NoSuchElementException   
 from bs4 import BeautifulSoup
 import os
 from dotenv import load_dotenv
@@ -23,11 +24,17 @@ def login():
     input.send_keys(student_number)
     input = wait.until(EC.presence_of_element_located(
         (By.XPATH, '//*[@id="passwd"]')))
-    input.send_keys(password)
+    input.send_keys(student_password)
     submit = wait.until(EC.element_to_be_clickable(
         (By.XPATH, '//*[@id="submit_by_acpw"]')))
     submit.click() # 點選登入按鈕
-    get_page_index()
+    # check number/password correct
+    if len(browser.find_elements_by_xpath('//*[@id="msg"]/div[2]'))>0:
+        print("find it")
+        # return "Failure on login"
+    else:
+        print("Pass")
+        get_page_index()
 
 def get_page_index():
     # browser.get('https://app.pers.ncku.edu.tw/ncov/index.php?c=fp&bid=B102&rid=B10203020&floor=3F')
@@ -59,6 +66,8 @@ def get_page_index():
             )
             submit.click()
         browser.close()
+        return "Success"
     except Exception as e:
         print(str(e))
+        return "Failure on NCKU Web"
 login()
