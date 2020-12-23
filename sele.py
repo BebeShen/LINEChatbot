@@ -17,7 +17,7 @@ wait = WebDriverWait(browser, 30) # 等待載入30s
 student_number = os.getenv("MY_STUDENT_NUMBER", None)
 password = os.getenv("MY_NCKU_PASSWORD", None)
 def login():
-    browser.get('https://app.pers.ncku.edu.tw/ncov/index.php?c=fp&bid=B029&rid=B02902006&floor=2F')
+    browser.get('https://app.pers.ncku.edu.tw/ncov/index.php?c=fp&bid=B102&rid=B10204901CC&floor=4F')
     input = wait.until(EC.presence_of_element_located(
         (By.XPATH, '//*[@id="user_id"]')))
     input.send_keys(student_number)

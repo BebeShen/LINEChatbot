@@ -6,6 +6,8 @@ from flask import Flask, request, abort
 # config.read("config.ini")
 import os
 import sys
+import psycopg2
+import model 
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -25,6 +27,8 @@ app = Flask(__name__)
 
 channel_secret = os.getenv("LINE_CHANNEL_SECRET", None)
 channel_access_token = os.getenv("LINE_CHANNEL_ACCESS_TOKEN", None)
+DATABASE_URL = os.getenv("DATABASE_URL", None)
+# conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 if channel_secret is None:
     print("Specify LINE_CHANNEL_SECRET as environment variable.")
     sys.exit(1)
@@ -34,6 +38,8 @@ if channel_access_token is None:
 
 line_bot_api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
+# conn.close()
+# cur = conn.cursor()
 # line_bot_api = LineBotApi(config['DEFAULT']['LINE_CHANNEL_ACCESS_TOKEN']) # 貼上你的line bot channel token
 # handler = WebhookHandler(config['DEFAULT']['LINE_CHANNEL_SECRET'])
 @app.route("/", methods=['GET'])
@@ -57,14 +63,6 @@ def callback():
     except InvalidSignatureError:
         print("Invalid signature. Please check your channel access token/channel secret.")
         abort(400)
-    # for event in events:
-    #     if not isinstance(event, MessageEvent):
-    #         continue
-    #     if not isinstance(event.message, TextMessage):
-    #         continue
-    #     if not isinstance(event.message.text, str):
-    #         continue
-    #     print("Hello world")
         # print(f"\nFSM STATE: {machine.state}")
         # print(f"REQUEST BODY: \n{body}")
         # response = machine.advance(event)
@@ -77,9 +75,23 @@ def callback():
 def handle_message(event):
     # 決定要回傳什麼 Component 到 Channel
     # ref:https://github.com/line/line-bot-sdk-python#linebotapi
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=event.message.text))
+    print(event.source.user_id)
+    user_line_id = event.source.user_id
+    # profile = line_bot_api.get_profile(user_line_id) # get profile by user's line_id(user_id)
+    user_info = model.find_user_by_line_id(user_line_id)
+    if user_info == "Not found":
+        model.create_user_info(user_line_id)
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text="請輸入成功入口學號/密碼以進行防疫點名登入")
+        )
+    else:
+        if user_info['state'] == "initial":
+            # ask next step
+            pass
+        profile = line_bot_api.get_profile(user_line_id)
+
+    
 
 
 if __name__ == "__main__":
