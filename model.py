@@ -49,4 +49,3 @@ def find_user_by_line_id(line_id):
         return dict(zip(keys,result))
         # dict
         # ['id', 'student_number', 'student_passwod','line_id','state','symptoms_check']
-# find_user_by_line_id("Ue3c1a5836bfe3844a3b577bcf1e4ad01")

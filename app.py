@@ -111,10 +111,12 @@ def handle_message(event):
     # ref:https://github.com/line/line-bot-sdk-python#linebotapi
     # print(event.source.user_id)
     user_line_id = event.source.user_id
+    app.logger.info("Got msg event from:" + user_line_id)
     profile = line_bot_api.get_profile(user_line_id) # get profile by user's line_id(user_id)
     user_info = model.find_user_by_line_id(user_line_id)
     if user_info == "Not found":
         # 沒有資料的情況，不管輸入甚麼都會出現下列回應
+        app.logger.info("NOT found")
         model.create_user_info(user_line_id)
         model.update_user_state_by_lineid("add student info",user_line_id)
         line_bot_api.reply_message(
@@ -123,7 +125,7 @@ def handle_message(event):
             )
         )
     else:
-        app.logger.info("Got Follow event from:" + user_info['state'])
+        app.logger.info("Found user:" + user_info['state'])
         if user_info['state'] == "update student info":
             # 要求使用者輸入帳號密碼的state
             txt = event.message.text
@@ -181,6 +183,6 @@ def handle_message(event):
 
 
 if __name__ == "__main__":
-    app.run()
-    # port = os.environ.get("PORT", 8000)
-    # app.run(host="0.0.0.0", port=port, debug=True)
+    # app.run()
+    port = os.environ.get("PORT", 8000)
+    app.run(host="0.0.0.0", port=port, debug=True)
