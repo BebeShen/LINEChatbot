@@ -82,7 +82,8 @@ def handle_postback(event):
     classroom = ""
     if event.postback.data in classrooms:
         classroom = event.postback.data
-    if sele.login(classroom) == False:
+    student = model.find_user_by_line_id(event.source.user_id)
+    if sele.login(classroom,student['student_number'],student['student_password']) == False:
         line_bot_api.push_message(
             event.source.user_id,
             TextSendMessage(text="帳號/密碼錯誤囉，請重新設定")

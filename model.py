@@ -56,4 +56,4 @@ def find_user_by_line_id(line_id):
         keys = ['id', 'student_number', 'student_passwod','line_id','state','symptoms_check']
         return dict(zip(keys,result))
         # dict
-        # ['id', 'student_number', 'student_passwod','line_id','state','symptoms_check']
+        # ['id', 'student_number', 'student_password','line_id','state','symptoms_check']
