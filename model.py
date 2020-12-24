@@ -35,13 +35,90 @@ def update_user_state_by_lineid(next_state,line_id):
             command,(next_state,datetime.datetime.now(),line_id)
         )
         conn.commit()
-def insert_url(classroom,url):
+def insert_url(classroom):
     with conn.cursor() as cursor:
-        command = "INSERT INTO public.url (classroom, url) VALUES(%s,%s)"
+        command = "INSERT INTO public.url (classroom) VALUES(%s)"
         cursor.execute(
-            command,(classroom,url,)
+            command,(classroom,)
         )
         conn.commit()
+def update_url(classroom,url):
+    with conn.cursor() as cursor:
+        command = "UPDATE public.url SET url = %s WHERE classroom = %s"
+        cursor.execute(
+            command,(url,classroom,)
+        )
+        conn.commit()
+def get_all_url():
+    flex_msg = {
+        "type": "bubble",
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "contents":  [
+                {
+                    "type": "text",
+                    "weight": "bold",
+                    "size": "xl",
+                    "align": "center",
+                    "text": "點名系統"
+                },
+                {
+                    "type": "text",
+                    "text": "請選擇要點名的教室",
+                    "align": "center"
+                }
+            ]
+        },
+        "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "spacing": "sm",
+            "contents": [],
+            "flex": 0
+        }
+    }
+    with conn.cursor() as cursor:
+        command = "SELECT classroom FROM public.url"
+        cursor.execute(
+            command,
+        )
+        classrooms = cursor.fetchall()
+        for classroom in classrooms:
+            flex_msg['footer']['contents'].append(
+               {
+                "type": "button",
+                "style": "link",
+                "height": "sm",
+                "action": {
+                    "type": "postback",
+                    "label": classroom[0],
+                    "data": classroom[0],
+                    "displayText": classroom[0]
+                    }
+                }
+            )
+        
+        flex_msg['footer']['contents'].append(
+            {
+                "type": "button",
+                "style": "link",
+                "height": "sm",
+                "action": {
+                    "type": "postback",
+                    "label": "新增地點",
+                    "data": "新增地點",
+                    "displayText": "新增地點"
+                }
+            }
+        )
+        flex_msg['footer']['contents'].append(
+            {
+                "type": "spacer",
+                "size": "sm"
+            }
+        )
+        return flex_msg
 def get_url_by_room(classroom):
     with conn.cursor() as cursor:
         command = "SELECT url FROM public.url WHERE classroom = %s ORDER BY id ASC"

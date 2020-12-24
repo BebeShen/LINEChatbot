@@ -6,6 +6,8 @@ import sys
 import psycopg2
 import model 
 import sele
+from pyzbar.pyzbar import decode
+from PIL import Image
 from dotenv import load_dotenv
 load_dotenv()
 import messageObeject
@@ -17,11 +19,17 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, FlexSendMessage, PostbackEvent, FollowEvent,ImageSendMessage
+    MessageEvent, TextMessage, TextSendMessage, FlexSendMessage, PostbackEvent, FollowEvent,ImageSendMessage, ImageMessage
 )
+class room_url:
+    def __init__(self):
+        self.classroom = ""
+        self.url = ""
+    
 
 app = Flask(__name__)
-
+temp = room_url()
+print(temp)
 # secret settings
 channel_secret = os.getenv("LINE_CHANNEL_SECRET", None)
 channel_access_token = os.getenv("LINE_CHANNEL_ACCESS_TOKEN", None)
@@ -66,18 +74,44 @@ def handle_follow(event):
         event.reply_token,
         TextSendMessage(text=f"歡迎使用子揚幫你點名小幫手，\n這個機器人可以幫你防疫點名，\n省去掃QRCode的時間！\n\n隨便輸入甚麼來開啟我的功能吧><")
     )
+@handler.add(MessageEvent, message=ImageMessage)
+def handle_content_message(event):
+    user_info = model.find_user_by_line_id(event.source.user_id)
+    if user_info['state'] != "QRcode":return
+    file_path = "temp.png"
+    image_content = line_bot_api.get_message_content(event.message.id)
+    with open(file_path, 'wb') as fd:
+        for chunk in image_content.iter_content():
+            fd.write(chunk)
+    app.logger.info("read qrcode")
+    d = decode(Image.open(file_path))
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(text="新增成功!")
+    )
+    temp.url = d[0].data.decode()
+    app.logger.info(temp.classroom)
+    model.update_url(temp.classroom,temp.url)
+    temp.classroom = ""
+    temp.url = ""
+    line_bot_api.push_message(
+        event.source.user_id,
+        FlexSendMessage(
+            alt_text="Test",
+            contents=model.get_all_url()
+        )
+    )
+    model.update_user_state_by_lineid("initial",event.source.user_id)
 
 @handler.add(PostbackEvent)
 def handle_postback(event):
     # 點名系統
-    line_bot_api.push_message(
-            event.source.user_id, TextSendMessage(text="進入點名系統")
-        )
     app.logger.info("event.postback.data:" +  event.postback.data)
     if event.postback.data == '新增地點':
         line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text="目前沒有這個功能哈哈哈，子揚就爛")
+            event.reply_token, TextSendMessage(text="請輸入教室名稱")
         )
+        model.update_user_state_by_lineid("add classroom",event.source.user_id)
     classrooms = ['資訊系館65304','資訊系館65405','資訊系館4263','測量系館經緯廳']
     classroom = ""
     if event.postback.data in classrooms:
@@ -158,11 +192,14 @@ def handle_message(event):
             # 或是輸入"更改資訊"進入add student info
             if "點名" in event.message.text:
                 # 送出教室選單
+                # line_bot_api.push_message(
+                #     event.source.user_id, TextSendMessage(text="")
+                # )
                 line_bot_api.reply_message(
                     event.reply_token,
                     FlexSendMessage(
                         alt_text="Test",
-                        contents=messageObeject.flex_msg
+                        contents=model.get_all_url()
                     )
                 )
             elif "修改" in event.message.text:
@@ -180,8 +217,8 @@ def handle_message(event):
                     )
                 url = request.url_root + '/static/mohado.jpg'
                 image_message = ImageSendMessage(
-                    original_content_url=url,
-                    preview_image_url=url
+                    original_content_url="https://truth.bahamut.com.tw/s01/201504/a631864cc980b28f8df5c9fb5f552ee6.JPG",
+                    preview_image_url="https://truth.bahamut.com.tw/s01/201504/a631864cc980b28f8df5c9fb5f552ee6.JPG"
                 )
                 line_bot_api.reply_message(
                     event.reply_token,image_message
@@ -190,11 +227,17 @@ def handle_message(event):
                         user_line_id,
                         FlexSendMessage(
                             alt_text="Test",
-                            contents=messageObeject.actionChoice
+                            contents=model.get_all_url()
                         )
                     )
-            
-            
+        elif user_info['state'] == "add classroom":
+            classroom = event.message.text
+            model.insert_url(classroom)
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text="請上傳QRcode圖片~")
+            )
+            temp.classroom = classroom
+            model.update_user_state_by_lineid("QRcode",user_line_id)
         
         # profile = line_bot_api.get_profile(user_line_id)
 
@@ -202,6 +245,9 @@ def handle_message(event):
 
 
 if __name__ == "__main__":
-    # app.run()
+    # ngrok 測試用
+    # port = os.environ.get("PORT", 3000)
+    # app.run(host="127.0.0.1", port=port, debug=True)
+    # Heroku 用
     port = os.environ.get("PORT", 8000)
     app.run(host="0.0.0.0", port=port, debug=True)
