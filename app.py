@@ -63,22 +63,6 @@ def callback():
     except InvalidSignatureError:
         print("Invalid signature. Please check your channel access token/channel secret.")
         abort(400)
-<<<<<<< HEAD
-    # for event in events:
-    #     if not isinstance(event, MessageEvent):
-    #         continue
-    #     if not isinstance(event.message, TextMessage):
-    #         continue
-    #     if not isinstance(event.message.text, str):
-    #         continue
-        print("Hello world")
-=======
->>>>>>> devel
-        # print(f"\nFSM STATE: {machine.state}")
-        # print(f"REQUEST BODY: \n{body}")
-        # response = machine.advance(event)
-        # if response == False:
-        #     send_text_message(event.reply_token, "Not Entering any State")
     return 'OK'
 @handler.add(FollowEvent)
 def handle_follow(event):
