@@ -35,6 +35,13 @@ def update_user_state_by_lineid(next_state,line_id):
             command,(next_state,datetime.datetime.now(),line_id)
         )
         conn.commit()
+def insert_url(classroom,url):
+    with conn.cursor() as cursor:
+        command = "INSERT INTO public.url (classroom, url) VALUES(%s,%s)"
+        cursor.execute(
+            command,(classroom,url,)
+        )
+        conn.commit()
 def get_url_by_room(classroom):
     with conn.cursor() as cursor:
         command = "SELECT url FROM public.url WHERE classroom = %s ORDER BY id ASC"
