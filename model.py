@@ -1,5 +1,6 @@
 import os
 import sys
+import datetime
 from dotenv import load_dotenv
 import psycopg2
 load_dotenv()
@@ -20,17 +21,18 @@ def update_user_student_by_lineid(info):
     if "userId" not in info.keys():
         return "Need userId(line_id)" 
     with conn.cursor() as cursor:
-        command = "UPDATE public.user SET student_number =  %s,student_password = %s WHERE line_id = %s"
+        command = "UPDATE public.user SET student_number =  %s,student_password = %s,updated_at = %s WHERE line_id = %s"
         cursor.execute(
-                command,(info['student_number'],info['student_password'],info['userId'])
+                command,(info['student_number'],info['student_password'],datetime.datetime.now(),info['userId'])
             )
+        # print(datetime.datetime.now())
         conn.commit()
     return "Success"
 def update_user_state_by_lineid(next_state,line_id):
     with conn.cursor() as cursor:
-        command = "UPDATE public.user SET state =  %s WHERE line_id = %s"
+        command = "UPDATE public.user SET state =  %s,updated_at = %s WHERE line_id = %s"
         cursor.execute(
-            command,(next_state,line_id)
+            command,(next_state,datetime.datetime.now(),line_id)
         )
         conn.commit()
 def find_user_by_line_id(line_id):
