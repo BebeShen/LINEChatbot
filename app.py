@@ -17,7 +17,7 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, FlexSendMessage, PostbackEvent, FollowEvent
+    MessageEvent, TextMessage, TextSendMessage, FlexSendMessage, PostbackEvent, FollowEvent,ImageSendMessage
 )
 
 app = Flask(__name__)
@@ -179,13 +179,12 @@ def handle_message(event):
                         TextSendMessage(text="Hi~又是我子揚喇哈哈哈，\n是不是又想翹課了，\n哎，真拿你沒辦法\n我就順手幫你點名吧")
                     )
                 url = request.url_root + '/static/mohado.jpg'
+                image_message = ImageSendMessage(
+                    original_content_url=url,
+                    preview_image_url=url
+                )
                 line_bot_api.reply_message(
-                    event.reply_token,
-                    {
-                        "type": "image",
-                        "originalContentUrl": url,
-                        "previewImageUrl": url
-                    }
+                    event.reply_token,image_message
                 )
                 line_bot_api.push_message(
                         user_line_id,
