@@ -126,7 +126,7 @@ def get_url_by_room(classroom):
             command,(classroom,)
         )
         result = cursor.fetchone()
-        return result
+        return result[0]
 def get_all_classroom():
     with conn.cursor() as cursor:
         command = "SELECT classroom FROM public.url"
