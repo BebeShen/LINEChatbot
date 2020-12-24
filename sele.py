@@ -5,6 +5,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException   
 from bs4 import BeautifulSoup
 import os
+import model
 from dotenv import load_dotenv
 load_dotenv()
 # # 背景執行
@@ -17,23 +18,27 @@ browser = webdriver.Chrome('./chromedriver')
 wait = WebDriverWait(browser, 30) # 等待載入30s
 student_number = os.getenv("MY_STUDENT_NUMBER", None)
 password = os.getenv("MY_NCKU_PASSWORD", None)
-def login():
-    browser.get('https://app.pers.ncku.edu.tw/ncov/index.php?c=fp&bid=B102&rid=B10204901CC&floor=4F')
+def login(classroom):
+    # browser.get('https://app.pers.ncku.edu.tw/ncov/index.php?c=fp&bid=B102&rid=B10204901CC&floor=4F')
+    url = model.get_url_by_room(classroom)
+    browser.get(url)
     input = wait.until(EC.presence_of_element_located(
         (By.XPATH, '//*[@id="user_id"]')))
     input.send_keys(student_number)
     input = wait.until(EC.presence_of_element_located(
         (By.XPATH, '//*[@id="passwd"]')))
-    input.send_keys(student_password)
+    # input.send_keys(student_password)
+    input.send_keys("tttt")
     submit = wait.until(EC.element_to_be_clickable(
         (By.XPATH, '//*[@id="submit_by_acpw"]')))
     submit.click() # 點選登入按鈕
     # check number/password correct
     if len(browser.find_elements_by_xpath('//*[@id="msg"]/div[2]'))>0:
-        print("find it")
-        # return "Failure on login"
+        browser.close()
+        print("Wrong Number/Password")
+        return False
     else:
-        print("Pass")
+        print("Login Success")
         get_page_index()
 
 def get_page_index():
@@ -70,4 +75,4 @@ def get_page_index():
     except Exception as e:
         print(str(e))
         return "Failure on NCKU Web"
-login()
+# login()

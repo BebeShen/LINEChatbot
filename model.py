@@ -1,8 +1,8 @@
 import os
 import sys
 import datetime
-from dotenv import load_dotenv
 import psycopg2
+from dotenv import load_dotenv
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL", None)
 conn = psycopg2.connect(DATABASE_URL, sslmode='require')
@@ -35,6 +35,14 @@ def update_user_state_by_lineid(next_state,line_id):
             command,(next_state,datetime.datetime.now(),line_id)
         )
         conn.commit()
+def get_url_by_room(classroom):
+    with conn.cursor() as cursor:
+        command = "SELECT url FROM public.url WHERE classroom = %s ORDER BY id ASC"
+        cursor.execute(
+            command,(classroom,)
+        )
+        result = cursor.fetchone()[0]
+        return result
 def find_user_by_line_id(line_id):
     with conn.cursor() as cursor:
         command = "SELECT * FROM public.user WHERE line_id = %s ORDER BY id ASC"
