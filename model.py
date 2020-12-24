@@ -13,7 +13,7 @@ def create_user_info(profile):
     with conn.cursor() as cursor:
         command = "INSERT INTO public.user (state,line_id, symptoms_check) VALUES(%s,%s,%s)"
         cursor.execute(
-                command,("initial",profile['userId'],"0",)
+                command,("initial",profile.user_id,"0",)
             )
         conn.commit()
     return "Success"

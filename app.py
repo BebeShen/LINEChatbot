@@ -70,7 +70,7 @@ def handle_follow(event):
     # Event day's greeting
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=f"歡迎使用子揚幫你點名小幫手，\n這個機器人可以幫你防疫點名，\n省去掃QRCode的時間！")
+        TextSendMessage(text=f"歡迎使用子揚幫你點名小幫手，\n這個機器人可以幫你防疫點名，\n省去掃QRCode的時間！\n\n隨便輸入甚麼來開啟我的功能吧><")
     )
 
 @handler.add(PostbackEvent)
@@ -101,7 +101,7 @@ def handle_postback(event):
             event.reply_token, TextSendMessage(text=event.postback.data)
         )
     # 修改完成後，回到initial state
-    model.update_user_state_by_lineid("initial",event.user_line_id)
+    model.update_user_state_by_lineid("initial",event.source.user_id)
     
 
 # decorator 負責判斷 event 為 MessageEvent 實例，event.message 為 TextMessage 實例。所以此為處理 TextMessage 的 handler
@@ -111,13 +111,14 @@ def handle_message(event):
     # ref:https://github.com/line/line-bot-sdk-python#linebotapi
     # print(event.source.user_id)
     user_line_id = event.source.user_id
-    app.logger.info("Got msg event from:" + user_line_id)
+    # app.logger.info("Got msg event from:" + user_line_id)
     profile = line_bot_api.get_profile(user_line_id) # get profile by user's line_id(user_id)
+    # app.logger.info("Profile: ",profile,type(profile))
     user_info = model.find_user_by_line_id(user_line_id)
     if user_info == "Not found":
         # 沒有資料的情況，不管輸入甚麼都會出現下列回應
         app.logger.info("NOT found")
-        model.create_user_info(user_line_id)
+        model.create_user_info(profile)
         model.update_user_state_by_lineid("add student info",user_line_id)
         line_bot_api.reply_message(
             event.reply_token,
@@ -126,16 +127,25 @@ def handle_message(event):
         )
     else:
         app.logger.info("Found user:" + user_info['state'])
-        if user_info['state'] == "update student info":
+        if user_info['state'] == "add student info":
             # 要求使用者輸入帳號密碼的state
             txt = event.message.text
             try:
                 txt = txt.split("\n")
                 number = txt[0].split(":")[1] # 學號
                 psw = txt[1].split(":")[1] # 密碼
+                # app.logger.info(txt,number,psw)
                 info = dict(zip(['userId','student_number','student_password'],[user_line_id,number,psw]))
                 model.update_user_student_by_lineid(info)
                 model.update_user_state_by_lineid("initial",user_line_id)
+                # 送出選項
+                line_bot_api.push_message(
+                    user_line_id,
+                    FlexSendMessage(
+                        alt_text="Test",
+                        contents=messageObeject.actionChoice
+                    )
+                )
             except:
                 line_bot_api.reply_message(
                     event.reply_token,
@@ -144,17 +154,10 @@ def handle_message(event):
         elif user_info['state'] == "initial":
             # 登入後的state，可以透過輸入"點名"進入rollcall state
             # 或是輸入"更改資訊"進入add student info
-            line_bot_api.push_message(
-                event.user_line_id,
-                FlexSendMessage(
-                    alt_text="Test",
-                    contents=messageObeject.actionChoice
-                )
-            )
             if "點名" in event.message.text:
                 # 送出教室選單
                 line_bot_api.reply_message(
-                    event.user_line_id,
+                    event.reply_token,
                     FlexSendMessage(
                         alt_text="Test",
                         contents=messageObeject.flex_msg
@@ -166,7 +169,11 @@ def handle_message(event):
                     TextSendMessage(text=f"{profile.display_name}，聽說你要修改東西嗎？\n請輸入下列格式範例：\n學號:F74072235\n密碼:password"
                     )
                 )
-                model.update_user_state_by_lineid("initial",user_line_id)
+                model.update_user_state_by_lineid("add student info",user_line_id)
+                line_bot_api.push_message(
+                    user_line_id,
+                    TextSendMessage(text="修改成功")
+                )
         # elif user_info['state'] == "rollcall":
             # 此處選擇要點名的教室
             # After rollcall go to initial state or go to update student info

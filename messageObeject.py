@@ -32,7 +32,8 @@ flex_msg = {
         "action": {
           "type": "postback",
           "label": "資訊系館4263",
-          "text": "資訊系館4263"
+          "data": "資訊系館4263",
+          "displayText": "資訊系館4263"
         }
       },
       {
@@ -41,8 +42,9 @@ flex_msg = {
         "height": "sm",
         "action": {
           "type": "postback",
-          "text": "資訊系館65304",
-          "label": "資訊系館65304"
+          "label": "資訊系館65304",
+          "data": "資訊系館65304",
+          "displayText": "資訊系館65304"
         }
       },
       {
@@ -51,8 +53,9 @@ flex_msg = {
         "height": "sm",
         "action": {
           "type": "postback",
-          "text": "資訊系館65405",
-          "label": "資訊系館65405"
+          "label": "資訊系館65405",
+          "data": "資訊系館65405",
+          "displayText": "資訊系館65405"
         }
       },
       {
@@ -61,8 +64,9 @@ flex_msg = {
         "height": "sm",
         "action": {
           "type": "postback",
-          "text": "測量系館經緯廳",
-          "label": "測量系館經緯廳"
+          "label": "測量系館經緯廳",
+          "data": "測量系館經緯廳",
+          "displayText": "測量系館經緯廳"
         }
       },
       {
@@ -72,7 +76,8 @@ flex_msg = {
         "action": {
           "type": "postback",
           "label": "新增地點",
-          "text": "新增地點"
+          "data": "新增地點",
+          "displayText": "新增地點"
         }
       },
       {
