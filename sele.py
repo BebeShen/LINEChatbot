@@ -9,12 +9,15 @@ import model
 from dotenv import load_dotenv
 load_dotenv()
 # # 背景執行
-# options = webdriver.ChromeOptions()
-# options.add_argument('--headless')
+# usage:https://www.youtube.com/watch?v=Ven-pqwk3ec&t=172s
+options = webdriver.ChromeOptions()
+options.binary_location = os.getenv("GOOGLE_CHROME_BIN",None)
+options.add_argument('--headless')
+options.add_argument('--disable-dev-shm-usage')
+options.add_argument('--no-sandbox')
 
-# browser = webdriver.Chrome(chrome_options=options, executable_path='./chromedriver')
-browser = webdriver.Chrome('./chromedriver')
-# browser.maximize_window()  # 最大化視窗
+browser = webdriver.Chrome(executable_path=os.getenv("CHROMEDRIVER_PATH"),chrome_options=options)
+# browser = webdriver.Chrome('./chromedriver')
 wait = WebDriverWait(browser, 30) # 等待載入30s
 student_number = os.getenv("MY_STUDENT_NUMBER", None)
 password = os.getenv("MY_NCKU_PASSWORD", None)
