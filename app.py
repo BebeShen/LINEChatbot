@@ -20,7 +20,7 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, FlexSendMessage, PostbackEvent, FollowEvent
+    MessageEvent, TextMessage, TextSendMessage, FlexSendMessage, PostbackEvent, FollowEvent,ImageSendMessage
 )
 
 app = Flask(__name__)
@@ -45,6 +45,7 @@ handler = WebhookHandler(channel_secret)
 @app.route("/", methods=['GET'])
 def hello_world():
 		# 有人觸發了 / 這個路徑的時候就會呼叫此function並且執行
+    return request.url_root
     return 'Hello World!'
 
 # 此為 Webhook callback endpoint
@@ -141,6 +142,10 @@ def handle_message(event):
                 # 送出選項
                 line_bot_api.push_message(
                     user_line_id,
+                    TextSendMessage(text="修改成功")
+                )
+                line_bot_api.push_message(
+                    user_line_id,
                     FlexSendMessage(
                         alt_text="Test",
                         contents=messageObeject.actionChoice
@@ -170,17 +175,24 @@ def handle_message(event):
                     )
                 )
                 model.update_user_state_by_lineid("add student info",user_line_id)
+            else:
+                # 一勞永逸後的狀況
                 line_bot_api.push_message(
-                    user_line_id,
-                    TextSendMessage(text="修改成功")
+                        user_line_id,
+                        TextSendMessage(text="Hi~又是我子揚喇哈哈哈，\n是不是又想翹課了，\n哎，真拿你沒辦法\n我就順手幫你點名吧")
+                    )
+                url = request.url_root + '/static/mohado.jpg'
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    ImageSendMessage(url, url)
                 )
-        # elif user_info['state'] == "rollcall":
-            # 此處選擇要點名的教室
-            # After rollcall go to initial state or go to update student info
-            # line_bot_api.push_message(
-            #         event.user_line_id,
-            #         TextSendMessage(text="請選擇要點名的教室\n目前有:\n資訊系館4263\n資訊系館65304\n資訊系館65405\n測量系館經緯廳")
-            #     )
+                line_bot_api.push_message(
+                        user_line_id,
+                        FlexSendMessage(
+                            alt_text="Test",
+                            contents=messageObeject.actionChoice
+                        )
+                    )
             
             
         
