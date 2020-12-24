@@ -112,11 +112,13 @@ def handle_postback(event):
             event.reply_token, TextSendMessage(text="請輸入教室名稱")
         )
         model.update_user_state_by_lineid("add classroom",event.source.user_id)
-    classrooms = ['資訊系館65304','資訊系館65405','資訊系館4263','測量系館經緯廳']
-    classroom = ""
-    if event.postback.data in classrooms:
-        classroom = event.postback.data
+        return
+    classroom = event.postback.data
     student = model.find_user_by_line_id(event.source.user_id)
+    line_bot_api.push_message(
+            event.source.user_id,
+            TextSendMessage(text="讓子彈飛一會兒...")
+        )
     if sele.login(classroom,student['student_number'],student['student_password']) == False:
         line_bot_api.push_message(
             event.source.user_id,
@@ -224,12 +226,19 @@ def handle_message(event):
                     event.reply_token,image_message
                 )
                 line_bot_api.push_message(
-                        user_line_id,
-                        FlexSendMessage(
-                            alt_text="Test",
-                            contents=model.get_all_url()
-                        )
+                    user_line_id,
+                    FlexSendMessage(
+                        alt_text="Test",
+                        contents=messageObeject.actionChoice
                     )
+                )
+                # line_bot_api.push_message(
+                #         user_line_id,
+                #         FlexSendMessage(
+                #             alt_text="Test",
+                #             contents=model.get_all_url()
+                #         )
+                #     )
         elif user_info['state'] == "add classroom":
             classroom = event.message.text
             model.insert_url(classroom)

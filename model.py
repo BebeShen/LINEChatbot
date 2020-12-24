@@ -125,7 +125,15 @@ def get_url_by_room(classroom):
         cursor.execute(
             command,(classroom,)
         )
-        result = cursor.fetchone()[0]
+        result = cursor.fetchone()
+        return result
+def get_all_classroom():
+    with conn.cursor() as cursor:
+        command = "SELECT classroom FROM public.url"
+        cursor.execute(
+            command,
+        )
+        result = cursor.fetchall()
         return result
 def find_user_by_line_id(line_id):
     with conn.cursor() as cursor:
