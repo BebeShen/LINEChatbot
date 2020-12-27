@@ -72,7 +72,7 @@ def handle_follow(event):
     # Join's greeting
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=f"歡迎使用子揚幫你點名小幫手，\n這個機器人可以幫你防疫點名，\n省去掃QRCode的時間！\n\n隨便輸入甚麼來開啟我的功能吧><")
+        TextSendMessage(text=f"歡迎使用子揚幫你點名小幫手，\n這個機器人可以幫你防疫點名，\n省去掃QRCode的時間！\n但是若有疫情相關症狀還是建議手動登記唷~\n\n隨便輸入甚麼來看看我有甚麼功能吧><")
     )
 @handler.add(MessageEvent, message=ImageMessage)
 def handle_content_message(event):
@@ -85,13 +85,13 @@ def handle_content_message(event):
             fd.write(chunk)
     app.logger.info("read qrcode")
     d = decode(Image.open(file_path))
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text="新增成功!")
-    )
     temp.url = d[0].data.decode()
     app.logger.info(temp.classroom)
     model.update_url(temp.classroom,temp.url)
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(text=f"{temp.classroom}新增成功!")
+    )
     temp.classroom = ""
     temp.url = ""
     line_bot_api.push_message(
@@ -111,7 +111,7 @@ def handle_postback(event):
     if student['state'] != "rollcall":
         line_bot_api.push_message(
             event.source.user_id,
-            TextSendMessage(text="請先到主選單選擇點名~")
+            TextSendMessage(text="請先回主選單選擇點名~")
         )
         return
     if event.postback.data == '新增地點':
@@ -120,15 +120,28 @@ def handle_postback(event):
         )
         model.update_user_state_by_lineid("add classroom",event.source.user_id)
         return
+    if event.postback.data == '取消':
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(text="回到主選單")
+        )
+        line_bot_api.push_message(
+            event.source.user_id,
+            FlexSendMessage(
+                alt_text="Test",
+                contents=messageObeject.actionChoice
+            )
+        )
+        model.update_user_state_by_lineid("initial",event.source.user_id)
+        return
     classroom = event.postback.data
     line_bot_api.push_message(
             event.source.user_id,
-            TextSendMessage(text="讓子揚飛一會兒...")
+            TextSendMessage(text="讓子揚忙跑一下學校RPG...")
         )
     if sele.login(classroom,student['student_number'],student['student_password']) == False:
         line_bot_api.push_message(
             event.source.user_id,
-            TextSendMessage(text="帳號/密碼錯誤囉，請重新設定")
+            TextSendMessage(text="帳號/密碼錯誤囉，請回主選單選取修改資訊")
         )
         model.update_user_state_by_lineid("add student info",event.source.user_id)
         line_bot_api.reply_message(
@@ -138,7 +151,7 @@ def handle_postback(event):
     else:
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text="點名成功了喇，你這個翹課的小壞蛋。")
+            TextSendMessage(text="點名成功！")
         )
     # 修改完成後，回到initial state
         model.update_user_state_by_lineid("initial",event.source.user_id)
@@ -149,15 +162,11 @@ def handle_postback(event):
 def handle_message(event):
     # 決定要回傳什麼 Component 到 Channel
     # ref:https://github.com/line/line-bot-sdk-python#linebotapi
-    # print(event.source.user_id)
     user_line_id = event.source.user_id
-    # app.logger.info("Got msg event from:" + user_line_id)
     profile = line_bot_api.get_profile(user_line_id) # get profile by user's line_id(user_id)
-    # app.logger.info("Profile: ",profile,type(profile))
     user_info = model.find_user_by_line_id(user_line_id)
     if user_info == "Not found":
         # 沒有資料的情況，不管輸入甚麼都會出現下列回應
-        app.logger.info("NOT found")
         model.create_user_info(profile)
         model.update_user_state_by_lineid("add student info",user_line_id)
         line_bot_api.reply_message(
@@ -166,7 +175,6 @@ def handle_message(event):
             )
         )
     else:
-        app.logger.info("Found user:" + user_info['state'])
         if user_info['state'] == "add student info":
             # 要求使用者輸入帳號密碼的state
             txt = event.message.text
@@ -181,7 +189,7 @@ def handle_message(event):
                 # 送出選項
                 line_bot_api.push_message(
                     user_line_id,
-                    TextSendMessage(text="修改成功")
+                    TextSendMessage(text="修改成功！")
                 )
                 line_bot_api.push_message(
                     user_line_id,
@@ -199,14 +207,10 @@ def handle_message(event):
             # 登入後的state，可以透過輸入"點名"進入rollcall state
             # 或是輸入"更改資訊"進入add student info
             if "點名" in event.message.text:
-                # 送出教室選單
-                # line_bot_api.push_message(
-                #     event.source.user_id, TextSendMessage(text="")
-                # )
                 line_bot_api.reply_message(
                     event.reply_token,
                     FlexSendMessage(
-                        alt_text="Test",
+                        alt_text="教室列表",
                         contents=model.get_all_url()
                     )
                 )
@@ -222,7 +226,7 @@ def handle_message(event):
                 # 一勞永逸後的狀況
                 line_bot_api.push_message(
                         user_line_id,
-                        TextSendMessage(text="Hi~又是我子揚喇哈哈哈，\n是不是又想翹課了，\n哎，真拿你沒辦法\n我就順手幫你點名吧")
+                        TextSendMessage(text="是不是又想翹課了\n哎，真拿你沒辦法\n我就順手幫你點名吧")
                     )
                 url = request.url_root + '/static/mohado.jpg'
                 image_message = ImageSendMessage(
@@ -239,13 +243,6 @@ def handle_message(event):
                         contents=messageObeject.actionChoice
                     )
                 )
-                # line_bot_api.push_message(
-                #         user_line_id,
-                #         FlexSendMessage(
-                #             alt_text="Test",
-                #             contents=model.get_all_url()
-                #         )
-                #     )
         elif user_info['state'] == "add classroom":
             classroom = event.message.text
             model.insert_url(classroom)
@@ -254,8 +251,6 @@ def handle_message(event):
             )
             temp.classroom = classroom
             model.update_user_state_by_lineid("QRcode",user_line_id)
-        
-        # profile = line_bot_api.get_profile(user_line_id)
 
     
 

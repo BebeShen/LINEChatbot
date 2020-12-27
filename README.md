@@ -3,31 +3,23 @@
 
 ## Description
 
+透過此聊天機器人進行防疫QRcode點名，但是目前只能**沒有症狀**的防疫點名，**若是出現疫情相關症狀，還是建議手動登記！**
 
+## 使用說明
 
-## [Heroku](https://dashboard.heroku.com/)
+![FSM](./initial.png)
 
-* **requirement.txt**
+* 當用戶為第一次使用時，需要新增用戶資訊來做後續的動作(成功入口帳號密碼)
+* 建立用戶資訊後，可以透過主選單選擇**點名**或**修改帳號密碼**
+* 選擇點名
+    * 可以直接選擇既有的教室來作為防疫登入
+    * 或自行上傳教室名稱與QRcode
 
-    這個檔案是要告訴 Heroku 你的環境需要那些其他的套件`
+## QR code
 
-* **[Procfile](https://devcenter.heroku.com/articles/procfile)**
+可以利用下列的QRcode加入好友
 
-    Procfile 這個檔案是要告訴 Heroku 要如何啟動這個 web app
-    在 Heroku 裡，官方使用 [Gunicorn](http://gunicorn.org/) 來啟動 web server
-    使用前須先安裝gunicorn套件：`pip install gunicorn`
-    Procfile 檔案，基本使用方法如：`web gunicorn app_run:app`
-    gunicorn相關可以參考[官方文件](https://devcenter.heroku.com/articles/python-gunicorn#adding-gunicorn-to-your-application)
-
-
-* **runtime.txt**
-
-    runtime.txt 檔案裡，只需要簡單的填入你想要指定的 python 版本，如果你不想指定 python 的版本，這個檔案可以忽略。
-
-* 備註
-
-先在本地端執行：`python app.py`
-沒有問題再推上去哈哈哈
+![QRcode](./QRcode.png)
 
 ## 參考資料
 

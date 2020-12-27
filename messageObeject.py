@@ -75,9 +75,9 @@ flex_msg = {
         "height": "sm",
         "action": {
           "type": "postback",
-          "label": "新增地點",
-          "data": "新增地點",
-          "displayText": "新增地點"
+          "label": "上傳QRcode新增地點",
+          "data": "上傳QRcode新增地點",
+          "displayText": "上傳QRcode新增地點"
         }
       },
       {

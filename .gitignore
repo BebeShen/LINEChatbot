@@ -6,4 +6,4 @@ config.ini
 url.py
 debug.log
 *.exe
-*.png
+temp.png

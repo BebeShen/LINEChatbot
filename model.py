@@ -106,9 +106,22 @@ def get_all_url():
                 "height": "sm",
                 "action": {
                     "type": "postback",
-                    "label": "新增地點",
-                    "data": "新增地點",
-                    "displayText": "新增地點"
+                    "label": "上傳QRcode新增地點",
+                    "data": "上傳QRcode新增地點",
+                    "displayText": "上傳QRcode新增地點"
+                }
+            }
+        )
+        flex_msg['footer']['contents'].append(
+            {
+                "type": "button",
+                "style": "link",
+                "height": "sm",
+                "action": {
+                    "type": "postback",
+                    "label": "取消",
+                    "data": "取消",
+                    "displayText": "取消"
                 }
             }
         )
