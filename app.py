@@ -114,13 +114,13 @@ def handle_postback(event):
             TextSendMessage(text="請先回主選單選擇點名~")
         )
         return
-    if event.postback.data == '新增地點':
+    if '新增地點' in event.postback.data:
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text="請輸入教室名稱")
         )
         model.update_user_state_by_lineid("add classroom",event.source.user_id)
         return
-    if event.postback.data == '取消':
+    if '取消' in event.postback.data:
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text="回到主選單")
         )
