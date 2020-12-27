@@ -136,7 +136,7 @@ def handle_postback(event):
     classroom = event.postback.data
     line_bot_api.push_message(
             event.source.user_id,
-            TextSendMessage(text="讓子揚忙跑一下學校RPG...")
+            TextSendMessage(text="讓子揚跑一下學校RPG...")
         )
     if sele.login(classroom,student['student_number'],student['student_password']) == False:
         line_bot_api.push_message(
