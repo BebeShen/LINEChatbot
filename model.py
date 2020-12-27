@@ -11,9 +11,9 @@ def create_user_info(profile):
     if profile == None:
         return "Input insufficient"
     with conn.cursor() as cursor:
-        command = "INSERT INTO public.user (state,line_id, symptoms_check) VALUES(%s,%s,%s)"
+        command = "INSERT INTO public.user (state,line_id) VALUES(%s,%s)"
         cursor.execute(
-                command,("initial",profile.user_id,"0",)
+                command,("initial",profile.user_id,)
             )
         conn.commit()
     return "Success"
@@ -145,7 +145,7 @@ def find_user_by_line_id(line_id):
         # print(result)
         if result == None:
             return "Not found"
-        keys = ['id', 'student_number', 'student_password','line_id','state','symptoms_check']
+        keys = ['id', 'student_number', 'student_password','line_id','state','updated_at']
         return dict(zip(keys,result))
         # dict
-        # ['id', 'student_number', 'student_password','line_id','state','symptoms_check']
+        # ['id', 'student_number', 'student_password','line_id','state','fever','updated_at','symptoms']

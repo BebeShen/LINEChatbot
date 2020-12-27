@@ -98,7 +98,7 @@ def handle_content_message(event):
         event.source.user_id,
         FlexSendMessage(
             alt_text="Test",
-            contents=model.get_all_url()
+            contents=messageObeject.actionChoice
         )
     )
     model.update_user_state_by_lineid("initial",event.source.user_id)
@@ -107,6 +107,13 @@ def handle_content_message(event):
 def handle_postback(event):
     # 點名系統
     app.logger.info("event.postback.data:" +  event.postback.data)
+    student = model.find_user_by_line_id(event.source.user_id)
+    if student['state'] != "rollcall":
+        line_bot_api.push_message(
+            event.source.user_id,
+            TextSendMessage(text="請先到主選單選擇點名~")
+        )
+        return
     if event.postback.data == '新增地點':
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text="請輸入教室名稱")
@@ -114,10 +121,9 @@ def handle_postback(event):
         model.update_user_state_by_lineid("add classroom",event.source.user_id)
         return
     classroom = event.postback.data
-    student = model.find_user_by_line_id(event.source.user_id)
     line_bot_api.push_message(
             event.source.user_id,
-            TextSendMessage(text="讓子彈飛一會兒...")
+            TextSendMessage(text="讓子揚飛一會兒...")
         )
     if sele.login(classroom,student['student_number'],student['student_password']) == False:
         line_bot_api.push_message(
@@ -204,6 +210,7 @@ def handle_message(event):
                         contents=model.get_all_url()
                     )
                 )
+                model.update_user_state_by_lineid("rollcall",user_line_id)
             elif "修改" in event.message.text:
                 line_bot_api.reply_message(
                     event.reply_token,
