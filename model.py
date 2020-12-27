@@ -79,7 +79,7 @@ def get_all_url():
         }
     }
     with conn.cursor() as cursor:
-        command = "SELECT classroom FROM public.url"
+        command = "SELECT classroom FROM public.url ORDER BY classroom ASC"
         cursor.execute(
             command,
         )
