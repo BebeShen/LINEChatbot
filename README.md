@@ -21,6 +21,12 @@
 
 ![QRcode](./QRcode.png)
 
+## Result
+
+![screenshot1](./line-bot/linebot_1.png)
+![screenshot2](./line-bot/linebot_2.png)
+![screenshot3](./line-bot/linebot_3.png)
+
 ## 參考資料
 
 * [官方文件](https://devcenter.heroku.com/articles/getting-started-with-python)
